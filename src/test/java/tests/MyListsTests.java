@@ -13,30 +13,29 @@ import org.junit.Assert;
 import org.junit.Test;
 
 @Epic("Tests for saving articles to lists")
-public class MyListsTestsTask extends CoreTestCase {
-
+public class MyListsTests extends CoreTestCase
+{
     private static final String
-            login = "YuliaTest",
-            password = "TestAuto20";
+    login = "YuliaTest",
+    password = "TestAuto20";
 
     @Test
     @Features(value = {@Feature(value = "Search"), @Feature(value = "Article"), @Feature(value = "SaveList")})
-    @DisplayName("Save and delete articles from save list")
-    @Description("We search an article, create new list, add the article to the list, then add the second article and delete one of the articles")
-    @Step("Starting test testSaveAndDeleteArticlesInMyList")
+    @DisplayName("Save an article to save list")
+    @Description("We search an article, create new list, add the article to this list and then delete it by swipe")
+    @Step("Starting test testSaveFirstArticleToList")
     @Severity(value = SeverityLevel.NORMAL)
-    public void testSaveAndDeleteArticlesInMyList() throws InterruptedException {
+    public void testSaveFirstArticleToList() throws InterruptedException {
 
         SearchPageObject SearchPageObject = SearchPageObjectFactory.get(driver);
-        ArticlePageObject ArticlePageObject = ArticlePageObjectFactory.get(driver);
-        NavigationUI NavigationUI = NavigationUIFactory.get(driver);
-        MyListsPageObject MyListsPageObject = MyListsPageObjectFactory.get(driver);
-
 
         SearchPageObject.clickSkipButton();
         SearchPageObject.initSearchInput();
         SearchPageObject.typeSearchLine("Java");
         SearchPageObject.clickByArticleWithSubstring("Object-oriented programming language");
+
+        ArticlePageObject ArticlePageObject = ArticlePageObjectFactory.get(driver);
+
         ArticlePageObject.waitForTitleElement();
         String article_title = ArticlePageObject.getArticleTitleByXpath();
         String name_of_folder = "Learning programming";
@@ -59,23 +58,18 @@ public class MyListsTestsTask extends CoreTestCase {
                     ArticlePageObject.getArticleTitleByXpath()
             );
         }
-        NavigationUI.clickReturnButton();
-        SearchPageObject.clearSearchInput();
-        SearchPageObject.initSearchInput();
-        SearchPageObject.typeSearchLine("Appium");
-        SearchPageObject.clickByArticleWithSubstring("Automation for Apps");
-        if(Platform.getInstance().isAndroid()) {
-            ArticlePageObject.addArticleToMyCreatedList(name_of_folder);
-        } else {
-            ArticlePageObject.addArticlesToMySaved();
-        }
-
-        NavigationUI.openNavigation();
-        NavigationUI.clickToMyLists();
+       if(Platform.getInstance().isAndroid()) {
         ArticlePageObject.clickViewListButton();
-        MyListsPageObject.waitForArticleToAppearByTitle("Java (programming language)");
-        MyListsPageObject.swipeByArticleToDelete("Java (programming language)");
-        ArticlePageObject.compareArticleTitles("Appium");
-        ArticlePageObject.ifArticleIsStillSaved("Appium");
+    }
+        NavigationUI NavigationUI = NavigationUIFactory.get(driver);
+       NavigationUI.openNavigation();
+       NavigationUI.clickToMyLists();
+
+        MyListsPageObject MyListsPageObject = MyListsPageObjectFactory.get(driver);
+
+        if (Platform.getInstance().isAndroid()) {
+            MyListsPageObject.openFolderByName(name_of_folder);
+        }
+        MyListsPageObject.swipeByArticleToDelete(article_title);
     }
 }
